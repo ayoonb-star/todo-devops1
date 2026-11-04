@@ -1,69 +1,125 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+
+type Task = {
+  id: number;
+  title: string;
+  completed: boolean;
+};
 
 export default function Home() {
+  const [tasks, setTasks] = useState<Task[]>([
+    { id: 1, title: "Finish assignment", completed: false },
+    { id: 2, title: "Study Next.js", completed: false },
+    { id: 3, title: "Setup Git repository", completed: true },
+  ]);
+
+  const [newTask, setNewTask] = useState("");
+
+  function addTask() {
+    if (!newTask.trim()) return;
+
+    setTasks([
+      ...tasks,
+      {
+        id: Date.now(),
+        title: newTask.trim(),
+        completed: false,
+      },
+    ]);
+
+    setNewTask("");
+  }
+
+  function toggleTask(id: number) {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id
+          ? { ...task, completed: !task.completed }
+          : task
+      )
+    );
+  }
+
+  function deleteTask(id: number) {
+    setTasks(tasks.filter((task) => task.id !== id));
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="min-h-screen bg-gray-100 px-5 py-16 text-gray-800">
+      <div className="mx-auto max-w-xl rounded-2xl bg-white p-8 shadow-lg">
+        <h1 className="mb-2 text-center text-3xl font-bold">
+          TODO APPLICATION
+        </h1>
+
+        <p className="mb-8 text-center text-gray-500">
+          Organize your tasks and stay productive.
+        </p>
+
+        <div className="mb-6 flex gap-2">
+          <input
+            type="text"
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addTask()}
+            placeholder="Enter a task..."
+            className="min-w-0 flex-1 rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
+          />
+
+          <button
+            onClick={addTask}
+            className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+          >
+            Add Task
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          {tasks.map((task) => (
+            <div
+              key={task.id}
+              className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 p-4"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              <label className="flex min-w-0 flex-1 items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => toggleTask(task.id)}
+                  className="h-5 w-5 accent-blue-600"
+                />
+
+                <span
+                  className={
+                    task.completed
+                      ? "break-words text-gray-400 line-through"
+                      : "break-words"
+                  }
+                >
+                  {task.title}
+                </span>
+              </label>
+
+              <button
+                onClick={() => deleteTask(task.id)}
+                className="shrink-0 font-medium text-red-500 hover:text-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {tasks.length === 0 && (
+          <p className="py-8 text-center text-gray-400">
+            No tasks yet. Add your first task!
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        )}
+
+        <p className="mt-6 text-center text-sm text-gray-500">
+          {tasks.filter((task) => task.completed).length} of {tasks.length} tasks completed
+        </p>
+      </div>
+    </main>
   );
 }
